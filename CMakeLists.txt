@@ -18,14 +18,26 @@ FetchContent_MakeAvailable(ixwebsocket)
 FetchContent_Declare(
     json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG v3.12.0
+    GIT_TAG v3.11.2
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(ticker main.cpp)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppress benchmark testing" FORCE)
+FetchContent_Declare(
+    googlebenchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.8.3
+)
+FetchContent_MakeAvailable(googlebenchmark)
 
+
+add_executable(ticker main.cpp TradeUtils.cpp)
 target_link_libraries(ticker PRIVATE ixwebsocket nlohmann_json::nlohmann_json)
+
+add_executable(bench_ticker bench_main.cpp TradeUtils.cpp)
+target_link_libraries(bench_ticker PRIVATE benchmark::benchmark nlohmann_json::nlohmann_json)
 
 if(UNIX)
     target_link_libraries(ticker PRIVATE pthread ssl crypto z)
+    target_link_libraries(bench_ticker PRIVATE pthread)
 endif()

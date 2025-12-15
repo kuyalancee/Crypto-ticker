@@ -5,6 +5,7 @@
 #include <ixwebsocket/IXWebSocket.h>
 #include <ixwebsocket/IXUserAgent.h>
 #include <nlohmann/json.hpp>
+#include "TradeUtils.h"
 
 using json = nlohmann::json;
 
@@ -30,16 +31,9 @@ int main() {
 
     webSocket.setOnMessageCallback([&webSocket, subscribeMsg](const ix::WebSocketMessagePtr& msg) {
         if (msg->type == ix::WebSocketMessageType::Message) {
-            try {
-                auto data = json::parse(msg->str);
-                if (data.contains("price") && data.contains("product_id")) {
-                    std::string product = data["product_id"];
-                    std::string price = data["price"];
-                    std::string side = data.value("side", "neutral");
-                    std::cout << "[" << product << "] " << side << " @ $" << price << std::endl;
-                }
-            } catch (const std::exception& e) {
-                std::cerr << "JSON Error: " << e.what() << std::endl;
+            auto trade = parse_trade_message(msg->str);
+            if (trade) {
+                std::cout << "[" << trade->product_id << "] " << trade->side << " @ $" << trade->price << std::endl;
             }
         } 
         else if (msg->type == ix::WebSocketMessageType::Open) {
