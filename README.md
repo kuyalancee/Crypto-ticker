@@ -1,4 +1,4 @@
-# High-Frequency Crypto Ticker
+# Crypto Ticker
 
 ## What is it?
 
